@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2027 신년운세</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&family=Noto+Serif+KR:wght@700&display=swap">
+<style>
+:root {
+  --bg: #f6f2ee;
+  --card: #ffffff;
+  --red: #c4473d;
+  --red-press: #a93a31;
+  --red-soft: #f8ebe7;
+  --red-line: #ecd3cc;
+  --warm: #f3eeea;
+  --ink: #2b2523;
+  --sub: #6f6460;
+  --muted: #9a8e89;
+  --error: #c4473d;
+  --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.6;
+  background: var(--bg);
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+header { padding-top: 52px; padding-bottom: 6px; padding-inline: 4px; display: flex; flex-direction: column; gap: 8px; }
+.event { margin: 0; font-size: 13px; font-weight: 500; color: var(--sub); }
+.event b { color: var(--ink); font-weight: 700; }
+h1 { margin: 0; font-weight: 900; font-size: 36px; line-height: 1.15; color: var(--ink); letter-spacing: -0.03em; }
+h1 .yr { color: var(--red); }
+.sub { margin: 2px 0 0; color: var(--sub); font-size: 15px; }
+.sub b { color: var(--red); font-weight: 700; }
+
+.card { background: var(--card); border-radius: 22px; overflow: hidden; box-shadow: 0 1px 2px rgba(60, 40, 30, 0.04), 0 8px 24px rgba(60, 40, 30, 0.06); }
+.bar { display: flex; align-items: center; padding: 22px 24px 0; }
+.bar h2 { margin: 0; font-size: 14px; font-weight: 700; color: var(--muted); letter-spacing: -0.01em; }
+.bar .tab { display: none; }
+.card-body { padding: 12px 24px 26px; display: flex; flex-direction: column; gap: 18px; }
+
+.step-q { margin: 0; font-weight: 800; font-size: 22px; line-height: 1.35; color: var(--ink); letter-spacing: -0.02em; }
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.choice {
+  font: inherit; cursor: pointer; border: 0; border-radius: 14px; padding: 15px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--red); color: #fff; transition: background 0.15s, transform 0.1s;
+}
+.choice.lunar { background: var(--red-soft); color: var(--red); }
+.choice:active { transform: scale(0.98); }
+.choice .c-t { font-weight: 700; font-size: 18px; line-height: 1.2; }
+.choice .c-s { font-size: 13px; opacity: 0.92; }
+.picked { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pill { background: var(--red-soft); color: var(--red); font-weight: 700; font-size: 14px; padding: 6px 12px; border-radius: 999px; }
+.link { font: inherit; font-size: 14px; font-weight: 500; color: var(--muted); background: none; border: 0; padding: 6px 2px; cursor: pointer; }
+@media (prefers-reduced-motion: no-preference) {
+  .step:not([hidden]) { animation: slidein 0.3s ease-out; }
+  @keyframes slidein { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+.area-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.area-btn {
+  font: inherit; cursor: pointer; border: 0; border-radius: 14px; padding: 20px 8px;
+  font-weight: 700; font-size: 17px; line-height: 1.2; color: var(--ink);
+  background: var(--warm); transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.area-btn:hover { background: var(--red-soft); color: var(--red); }
+.area-btn:active { transform: scale(0.97); background: var(--red-soft); color: var(--red); }
+.tip { background: var(--warm); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
+.tip p { margin: 0; }
+.tip .tip-l { font-size: 13px; font-weight: 700; color: var(--red); }
+.tip .tip-t { font-size: 15px; color: var(--ink); }
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-row .btn { font-size: 16px; padding: 15px 8px; }
+.loading { align-items: center; text-align: center; padding: 44px 20px; gap: 14px; }
+.spinner { width: 56px; height: 56px; border-radius: 50%; border: 5px solid var(--red-soft); border-top-color: var(--red); animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
+.load-t { margin: 0; font-weight: 800; font-size: 20px; color: var(--ink); letter-spacing: -0.02em; }
+.load-s { margin: 0; font-size: 14px; color: var(--muted); }
+.field-label { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--sub); }
+.date-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; }
+.date-row label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 500; color: var(--muted); min-width: 0; }
+select {
+  appearance: none; -webkit-appearance: none;
+  width: 100%; font: inherit; font-size: 18px; font-weight: 700; color: var(--ink);
+  background: var(--warm) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239a8e89' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border: 0; border-radius: 12px; padding: 12px 28px 12px 12px;
+}
+select:focus-visible, button:focus-visible, .check input:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; cursor: pointer; color: var(--sub); }
+.check input { width: 20px; height: 20px; accent-color: var(--red); }
+.error { margin: 0; color: var(--error); font-size: 14px; font-weight: 500; }
+.btn {
+  font: inherit; font-weight: 700; font-size: 17px;
+  border: 0; border-radius: 14px; padding: 16px; cursor: pointer;
+  background: var(--red); color: #fff; transition: background 0.15s, transform 0.1s;
+}
+.btn:active { transform: scale(0.98); background: var(--red-press); }
+.btn.ghost { background: var(--card); color: var(--sub); }
+.note { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }
+
+.me { display: flex; align-items: center; gap: 14px; }
+.hanja {
+  flex: none; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  font-family: "Noto Serif KR", "Noto Sans KR", serif; font-weight: 700; font-size: 30px; color: var(--red);
+  background: var(--red-soft);
+}
+.me p { margin: 0; }
+.me-label { font-size: 12px; font-weight: 500; color: var(--muted); }
+.me-name { font-weight: 800; font-size: 22px; line-height: 1.3; color: var(--ink); letter-spacing: -0.02em; }
+.me-desc { font-size: 14px; color: var(--sub); }
+.kw-block { background: var(--red-soft); border-radius: 16px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.kw-label { margin: 0; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; color: var(--red); opacity: 0.75; }
+.kw { margin: 0; font-weight: 900; font-size: 26px; line-height: 1.3; color: var(--red); letter-spacing: -0.02em; text-wrap: balance; }
+.total { margin: 0; font-size: 16px; line-height: 1.8; color: var(--ink); }
+.meta { margin: 0; font-size: 12px; color: var(--muted); text-align: center; line-height: 1.7; }
+.hint { margin: 0; text-align: center; font-size: 14px; font-weight: 500; color: var(--sub); }
+footer { text-align: center; font-size: 12px; color: var(--muted); line-height: 1.7; padding-top: 8px; }
+footer p { margin: 0; }
+footer .brand { font-weight: 800; letter-spacing: 0.12em; color: var(--sub); font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) {
+  #card { animation: rise 0.45s ease-out; }
+  @keyframes rise { from { transform: translateY(10px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+  #result .kw-block, #result .total, #result .tip, #result .meta, #result .hint, #result .btn-row { animation: fadeup 0.5s ease-out both; }
+  #result .kw-block { animation-delay: 0.2s; }
+  #result .total { animation-delay: 0.8s; }
+  #result .tip { animation-delay: 1.4s; }
+  #result .meta, #result .hint, #result .btn-row { animation-delay: 1.8s; }
+  @keyframes fadeup { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+</style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<main class="wrap">
+  <header>
+    <p class="event">2026 <b>UNDERBRIDGE 396</b> 브랜드데이 SEASON.2</p>
+    <h1><span class="yr">2027</span> 신년운세</h1>
+    <p class="sub"><b>정미년(丁未年)</b> · 붉은 양의 해를 미리 만나보세요</p>
+  </header>
+
+  <form id="form" class="card" novalidate>
+    <div class="bar"><h2 id="form-title">생일 기준 선택 · 1/3</h2><span class="tab" aria-hidden="true"><i></i></span></div>
+
+    <div class="card-body step" id="step-cal">
+      <p class="step-q">어떤 생일로 볼까요?</p>
+      <div class="choices">
+        <button type="button" class="choice" id="pick-solar"><span class="c-t">양력</span></button>
+        <button type="button" class="choice lunar" id="pick-lunar"><span class="c-t">음력</span></button>
+      </div>
+      <div hidden>
+        <input type="radio" name="cal" id="cal-solar" value="solar" checked>
+        <input type="radio" name="cal" id="cal-lunar" value="lunar">
+      </div>
+    </div>
+
+    <div class="card-body step" id="step-date" hidden>
+      <div class="picked"><span class="pill" id="picked-label">양력</span><button type="button" class="link" id="back">← 다시 고르기</button></div>
+      <div>
+        <p class="field-label">생년월일</p>
+        <div class="date-row">
+          <label for="y">년<select id="y"></select></label>
+          <label for="m">월<select id="m"></select></label>
+          <label for="d">일<select id="d"></select></label>
+        </div>
+      </div>
+      <label class="check" id="leap-row" for="leap" hidden><input type="checkbox" id="leap"> 윤달이에요</label>
+      <p class="error" id="error" role="alert" hidden></p>
+      <button class="btn" type="button" id="go">다음</button>
+      <p class="note">생년월일은 이 화면 안에서만 계산되고, 어디에도 저장되지 않아요.</p>
+    </div>
+
+    <div class="card-body step" id="step-area" hidden>
+      <div class="picked"><span class="pill" id="picked-date">양력 1995.6.15</span><button type="button" class="link" id="back2">← 생일 다시 입력</button></div>
+      <p class="step-q">어떤 운을 볼까요?</p>
+      <div class="area-pick">
+        <button type="button" class="area-btn love" data-area="love">연애운</button>
+        <button type="button" class="area-btn money" data-area="money">재물운</button>
+        <button type="button" class="area-btn health" data-area="health">건강운</button>
+        <button type="button" class="area-btn work" data-area="work">학업·직장운</button>
+      </div>
+    </div>
+
+    <div class="card-body step loading" id="step-load" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="load-t" id="load-t">사주를 계산하고 있어요</p>
+      <p class="load-s">정미년(丁未年)의 기운과 맞춰보는 중</p>
+    </div>
+  </form>
+
+  <section id="result" hidden aria-live="polite">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <article class="card" id="card">
+        <div class="bar"><h2 id="r-title">2027 정미년 재물운</h2><span class="tab" aria-hidden="true"><i></i></span></div>
+        <div class="card-body">
+          <div class="me">
+            <div class="hanja" id="r-hanja">甲</div>
+            <div>
+              <p class="me-label">나의 일간 (태어난 날의 기운)</p>
+              <p class="me-name" id="r-name">갑목</p>
+              <p class="me-desc" id="r-desc">곧게 뻗은 큰 나무</p>
+            </div>
+          </div>
+          <div class="kw-block">
+            <p class="kw-label">2027 FORTUNE</p>
+            <h2 class="kw" id="r-area">재물운</h2>
+          </div>
+          <p class="total" id="r-text"></p>
+          <div class="tip"><p class="tip-l" id="r-tip-l">말띠로 보는 한 줄</p><p class="tip-t" id="r-tip"></p></div>
+          <p class="meta" id="r-meta"></p>
+        </div>
+      </article>
+      <p class="hint">화면을 캡처해서 간직하세요</p>
+      <div class="btn-row">
+        <button class="btn" type="button" id="other">다른 운 보기</button>
+        <button class="btn ghost" type="button" id="again">처음으로</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="brand">UNDERBRIDGE 396</p>
+    <p>재미로 즐기는 AI 신년운세 체험입니다.</p>
+  </footer>
+</main>
+
+<script>
+window.addEventListener("error", function (e) {
+  var box = document.getElementById("error");
+  if (box) { box.textContent = "오류가 났어요: " + (e && e.message ? e.message : "알 수 없는 오류") + " (이 화면을 캡처해서 보내주세요)"; box.hidden = false; }
+});
+(function () {
+  "use strict";
+
+  var STEMS = [
+    { h: "甲", n: "갑목", el: "나무", desc: "곧게 뻗은 큰 나무",
+      kw: "표현이 기회가 되는 해",
+      total: "2027년의 불 기운이 큰 나무인 당신의 재능을 밖으로 꺼내줍니다. 마음속에만 품었던 생각을 말하고 행동으로 옮길수록 기회가 따라오고, 그 노력이 실제 결실로 이어지는 흐름이에요. 망설이던 일이 있다면 올해 시작해 보세요.",
+      color: "네이비", hex: "#2b3f73", num: "1" },
+    { h: "乙", n: "을목", el: "나무", desc: "어디서든 피어나는 꽃과 풀",
+      kw: "재능이 빛을 보는 해",
+      total: "따뜻한 불 기운을 받아 꽃이 피어나듯, 당신이 잘하는 일이 자연스럽게 주목받는 해예요. 즐겁게 하는 일에서 뜻밖의 기회와 수입이 생길 수 있으니, 좋아하는 일을 꾸준히 이어가 보세요.",
+      color: "블루", hex: "#3f74c9", num: "6" },
+    { h: "丙", n: "병화", el: "불", desc: "세상을 비추는 태양",
+      kw: "함께할 때 더 밝아지는 해",
+      total: "같은 불의 기운이 들어와 곁에 사람이 모이는 해예요. 혼자 앞서가기보다 함께하는 사람들과 힘을 합칠 때 더 큰 성과가 나고, 당신의 말과 아이디어가 주변을 움직이는 힘이 됩니다.",
+      color: "그린", hex: "#3f9a5c", num: "3" },
+    { h: "丁", n: "정화", el: "불", desc: "어둠을 밝히는 촛불",
+      kw: "나다움이 무기가 되는 해",
+      total: "나와 같은 촛불의 기운이 들어와 자신감이 단단해지는 해예요. 남과 비교하기보다 나만의 속도로 꾸준히 해나갈 때 결과가 따라오고, 차곡차곡 쌓은 실력이 자연스럽게 드러납니다.",
+      color: "민트", hex: "#7fd1b2", num: "8" },
+    { h: "戊", n: "무토", el: "흙", desc: "든든한 큰 산",
+      kw: "든든한 지원군을 얻는 해",
+      total: "따뜻한 불 기운이 큰 산을 데워주듯, 주변의 도움과 배움이 함께하는 해예요. 새로운 공부나 자격증에 도전하기 좋고, 믿을 만한 사람들과의 인연이 앞으로의 든든한 기반이 됩니다.",
+      color: "코랄", hex: "#f08a6c", num: "2" },
+    { h: "己", n: "기토", el: "흙", desc: "생명을 키우는 기름진 땅",
+      kw: "새로운 배움이 문을 여는 해",
+      total: "불 기운이 땅을 따뜻하게 데워 새싹을 틔우는 해예요. 평소와 다른 분야의 공부나 경험이 새로운 길을 열어주고, 스스로 판단하고 결정하는 힘이 한층 커집니다.",
+      color: "레드", hex: "#d64545", num: "7" },
+    { h: "庚", n: "경금", el: "쇠", desc: "단단한 바위와 쇠",
+      kw: "노력이 인정받는 해",
+      total: "불이 쇠를 단련해 좋은 도구를 만들듯, 그동안의 노력이 인정과 성과로 돌아오는 해예요. 직장이나 학교에서 맡는 역할이 커질 수 있고, 책임감 있게 해낸 일들이 좋은 평판으로 이어집니다.",
+      color: "베이지", hex: "#d8c3a0", num: "5" },
+    { h: "辛", n: "신금", el: "쇠", desc: "빛나는 보석",
+      kw: "한 단계 단단해지는 해",
+      total: "보석이 불 속에서 더 빛나듯, 새로운 도전과 변화 속에서 한층 성장하는 해예요. 조금 바쁘게 느껴질 수 있지만, 그만큼 실력과 자신감이 단단해지고 새로운 아이디어가 떠오르는 시기입니다.",
+      color: "머스터드", hex: "#d4a52c", num: "10" },
+    { h: "壬", n: "임수", el: "물", desc: "넓고 깊은 바다",
+      kw: "차곡차곡 쌓이는 해",
+      total: "넓은 바다가 따뜻한 햇살을 품듯, 안정적인 흐름 속에서 재물과 일이 차곡차곡 쌓이는 해예요. 계획을 세워 꾸준히 실천할수록 결과가 확실해지고, 맡은 자리에서 신뢰를 얻게 됩니다.",
+      color: "화이트", hex: "#f4f4f0", num: "4" },
+    { h: "癸", n: "계수", el: "물", desc: "만물을 적시는 단비",
+      kw: "기회를 잡는 해",
+      total: "단비가 햇살을 만나 무지개를 만들듯, 새로운 기회가 눈앞에 나타나는 해예요. 평소보다 활동 반경을 넓히고 적극적으로 움직일수록 좋은 기회와 인연을 만날 수 있습니다.",
+      color: "실버", hex: "#c3c8cf", num: "9" }
+  ];
+
+  var STEM_KO = ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"];
+  var BRANCH_KO = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"];
+
+  var ZODIAC = [
+    { a: "쥐", love: "작은 오해는 바로 대화로 풀면 관계가 오히려 더 깊어져요.", money: "계획에 없던 지출만 조심하면 꾸준히 모이는 흐름이에요.", health: "늦은 밤 습관을 줄이면 컨디션이 확 좋아져요.", work: "꼼꼼함이 빛나는 해, 디테일에서 좋은 평가를 받아요." },
+    { a: "소", love: "새로운 환경에서 뜻밖의 좋은 인연을 만나요.", money: "이사나 이직 같은 변화가 오히려 재물의 기회가 돼요.", health: "바쁜 만큼 충분한 수면으로 체력을 챙기세요.", work: "변화를 두려워하지 않으면 새로운 자리가 열려요." },
+    { a: "호랑이", love: "먼저 다가가는 용기가 좋은 관계를 만들어요.", money: "도전한 만큼 돌아오는 해, 배움에 쓰는 돈은 투자예요.", health: "몸을 움직일수록 기운이 살아나는 해예요.", work: "리더십을 발휘할 기회가 찾아와요." },
+    { a: "토끼", love: "마음이 잘 맞는 사람들과 함께하는 일이 늘어나요.", money: "협업과 모임에서 좋은 정보와 기회를 얻어요.", health: "몸과 마음의 균형이 잘 맞는 편안한 해예요.", work: "팀워크가 좋아 함께하는 일에서 성과가 나요." },
+    { a: "용", love: "오랜 인연과의 관계가 다시 따뜻해져요.", money: "차근차근 모아온 것이 든든한 기반이 돼요.", health: "규칙적인 식사가 컨디션의 비결이에요.", work: "큰 그림을 그리는 능력이 인정받아요." },
+    { a: "뱀", love: "자연스럽게 사람이 모이고 분위기를 이끄는 해예요.", money: "활발하게 움직인 만큼 수입의 기회도 늘어나요.", health: "에너지가 넘치는 만큼 쉬는 시간도 꼭 챙기세요.", work: "열정이 성과로 이어지는 시기예요." },
+    { a: "말", love: "좋은 짝, 좋은 동료를 만나는 인연의 해예요.", money: "함께하는 사람 덕분에 재물운이 따라와요.", health: "즐거운 활동이 최고의 건강 비결이에요.", work: "든든한 협력자를 만나 일이 술술 풀려요." },
+    { a: "양", love: "내 해인 만큼 주목받고 사랑받는 일이 많아요.", money: "나를 위한 투자가 좋은 결과로 돌아와요.", health: "새해에 다짐한 생활 습관을 꾸준히 지키면 좋아요.", work: "주인공이 되는 해, 자신 있게 나서 보세요." },
+    { a: "원숭이", love: "재치 있는 말 한마디가 관계를 부드럽게 해요.", money: "아이디어가 수입으로 연결되는 기회가 있어요.", health: "가벼운 운동으로 스트레스를 풀어주세요.", work: "새로운 기술이나 공부가 큰 무기가 돼요." },
+    { a: "닭", love: "진심을 담은 표현이 마음을 움직여요.", money: "꼼꼼한 정리와 계획이 재물을 지켜줘요.", health: "따뜻한 차 한 잔의 여유가 컨디션을 지켜줘요.", work: "정확하고 깔끔한 일 처리로 신뢰를 얻어요." },
+    { a: "개", love: "한 번 더 배려하면 관계가 한층 단단해져요.", money: "서두르지 않고 신중하게 고르면 좋은 결과가 있어요.", health: "무리하지 말고 쉬어가는 여유가 필요해요.", work: "꾸준함이 결국 가장 큰 경쟁력이 돼요." },
+    { a: "돼지", love: "따뜻한 마음 덕분에 주변에 좋은 사람이 모여요.", money: "베푼 만큼 돌아오는 넉넉한 해예요.", health: "잘 먹고 잘 쉬는 것만으로도 충분히 좋아요.", work: "협력하는 일에서 좋은 성과가 나요." }
+  ];
+
+
+  var AREA = [
+    { love: "마음속에만 담아 두었던 이야기가 비로소 입 밖으로 나오는 해입니다. 그동안 표현이 서툴러 오해를 샀던 일이 있었다면, 올해는 솔직한 한마디가 그 벽을 허물어 줄 것입니다. 상대는 생각보다 당신의 진심을 기다리고 있었을지도 모릅니다. 망설이던 고백이나 사과가 있다면 미루지 말고 먼저 꺼내 보세요. 말 한마디에 관계의 온도가 확연히 달라지는 것을 느낄 수 있습니다. 다만 감정이 앞설 때는 한 박자 쉬고 부드럽게 전하는 것이 좋겠네요.",
+      money: "따뜻한 불 기운이 흙을 살려 주듯, 재물의 문이 활짝 열리는 해입니다. 그동안 안에만 쌓아 두었던 재능과 아이디어를 밖으로 꺼내 보일수록 그것이 수입으로 이어질 기회가 많아집니다. 부업이나 작은 프로젝트를 시작해 보기에도 좋은 흐름이네요. 처음에는 반응이 작더라도 꾸준히 이어가면 눈에 띄는 결실로 돌아옵니다. 다만 들어오는 만큼 씀씀이도 커질 수 있으니, 수입이 생길 때마다 일부를 따로 떼어 두는 습관을 들이면 좋겠습니다.",
+      health: "하고 싶은 일도, 해야 할 일도 많아 에너지를 아낌없이 쓰게 되는 해입니다. 의욕이 넘치는 것은 좋지만, 몸이 보내는 작은 신호를 무심코 넘기기 쉬운 때이기도 하네요. 바쁠수록 잠과 휴식을 일정표 맨 앞에 두는 것이 좋습니다. 충분히 쉰 날과 그렇지 못한 날의 차이를 스스로 느끼게 될 것입니다. 기운을 고르게 나누어 쓴다면 연초의 힘찬 기세를 연말까지 그대로 이어갈 수 있습니다.",
+      work: "말과 글, 발표처럼 나를 드러내는 일에서 실력이 유난히 빛나는 해입니다. 회의에서 꺼낸 한마디나 보고서 속 아이디어 하나가 주변의 시선을 단번에 모을 수 있겠네요. 그동안 속으로만 생각하던 제안이 있다면 올해는 자신 있게 꺼내 보세요. 좋은 반응이 돌아오면서 맡는 일의 폭도 자연스럽게 넓어집니다. 학생이라면 발표나 글쓰기 과제에서 좋은 평가를 기대해도 좋습니다. 다만 의욕이 앞서 약속이 많아지지 않도록, 할 수 있는 만큼만 약속하는 지혜가 필요합니다." },
+    { love: "봄볕을 받은 꽃처럼 자연스러운 매력이 한껏 피어나는 해입니다. 애써 꾸미지 않아도 편안하고 밝은 모습에 사람들이 먼저 다가오겠네요. 특히 즐겁게 하는 취미나 모임 자리에서 마음이 잘 맞는 사람을 만날 가능성이 큽니다. 억지로 인연을 찾기보다 좋아하는 일을 하며 지내다 보면 어느새 좋은 사람이 곁에 와 있을 것입니다. 이미 연인이 있다면 함께 새로운 취미를 시작해 보세요. 둘 사이에 웃음이 늘어나고 관계가 한층 가까워집니다.",
+      money: "뜻밖의 곳에서 수입이 생길 수 있는 해입니다. 그저 좋아서 해 오던 일이 어느새 돈이 되는 흐름이 찾아오네요. 손재주나 취미, 남들보다 조금 더 아는 분야가 있다면 그것을 가볍게 나누어 보세요. 생각지도 못한 곳에서 반응이 오고 작은 기회가 줄줄이 이어질 수 있습니다. 다만 기분 좋은 날 충동적으로 쓰는 돈은 조심하는 것이 좋겠습니다. 즐거움은 지키되 지갑은 한 번 더 확인하는 여유가 재물을 오래 머물게 합니다.",
+      health: "활동량이 부쩍 늘어나는 해라 몸이 생각보다 빨리 지칠 수 있습니다. 즐거운 일에 몰두하다 보면 피곤함을 잊고 무리하게 되는 때가 있겠네요. 거창한 운동보다 가벼운 산책과 스트레칭으로 틈틈이 몸을 풀어 주는 것이 잘 맞습니다. 하루 중 짧게라도 바깥 공기를 마시는 시간을 만들어 보세요. 몸이 가벼워지면 마음도 함께 밝아지는 것을 느낄 수 있습니다.",
+      work: "잘하는 일이 자연스럽게 주목받는 해입니다. 맡은 일을 나만의 방식으로 재미있게 풀어낼수록 좋은 평가가 따라오겠네요. 정해진 틀을 그대로 따르기보다 작은 부분이라도 내 색깔을 더해 보세요. 그 차이를 알아보는 사람이 반드시 나타납니다. 학업에서도 흥미를 느끼는 과목에서 실력이 쑥쑥 늘어나는 시기입니다. 즐기는 사람을 이길 수 없다는 말이 올해 당신에게 꼭 맞는 이야기입니다." },
+    { love: "사람이 많이 모이는 해라 인연의 폭이 한층 넓어집니다. 새로운 모임과 약속이 늘어나면서 다양한 사람을 만날 기회가 많아지겠네요. 특히 친구처럼 편하게 지내던 사이에서 어느 날 문득 특별한 감정이 싹틀 수 있습니다. 익숙한 사람의 새로운 모습에 마음이 흔들리는 순간을 놓치지 마세요. 연인이 있다면 둘만의 시간도 꼭 챙기는 것이 좋습니다. 바쁜 일정 속에서도 함께하는 작은 시간이 관계를 더욱 단단하게 만들어 줍니다.",
+      money: "함께하는 사람이 많아지는 해인 만큼 모임이나 선물에 쓰는 돈도 늘어날 수 있습니다. 하지만 그 돈이 그냥 사라지는 것은 아니네요. 사람 사이에서 좋은 정보와 기회가 들어오고, 함께 일을 도모하면 수입도 커지는 흐름입니다. 혼자 고민하던 일이 있다면 믿을 만한 사람과 머리를 맞대 보세요. 다만 돈이 오가는 약속은 처음부터 분명하게 정해 두는 것이 좋겠습니다. 그래야 좋은 관계와 재물을 함께 지킬 수 있습니다.",
+      health: "불 기운이 겹쳐 열정이 그 어느 때보다 넘치는 해입니다. 무엇이든 해낼 수 있을 것 같은 기분에 쉬지 않고 달리기 쉽겠네요. 그러나 뜨거운 기운이 계속 쌓이면 갑자기 지치거나 예민해질 수 있습니다. 충분한 수면과 넉넉한 물 마시기로 몸의 열을 식혀 주세요. 땀을 흘리는 운동 뒤에는 꼭 쉬어 가는 시간을 두는 것이 좋습니다. 속도를 조절할 줄 알면 한 해 내내 밝은 기운을 유지할 수 있습니다.",
+      work: "혼자보다 팀으로 움직일 때 성과가 훨씬 커지는 해입니다. 당신의 말과 아이디어가 주변 사람들을 움직이는 힘이 되겠네요. 앞장서서 분위기를 이끌면 사람들이 자연스럽게 따라오고, 함께 만든 결과가 기대 이상으로 나옵니다. 다만 모든 일을 혼자 짊어지려 하기보다 역할을 나누는 지혜가 필요합니다. 동료의 장점을 살려 줄수록 당신의 리더십도 더욱 빛납니다. 학업에서도 스터디나 조별 활동에서 좋은 결과를 기대해도 좋습니다." },
+    { love: "있는 그대로의 나를 보여줄 때 편안한 인연이 찾아오는 해입니다. 잘 보이려고 애쓰기보다 평소의 모습 그대로일 때 더 큰 매력이 전해지겠네요. 급하게 마음을 확인하려 하지 말고 천천히 서로를 알아가는 것이 좋습니다. 촛불처럼 은은하게 이어지는 관계가 결국 오래갑니다. 연인이 있다면 서로의 속도를 존중해 주세요. 조용하지만 깊은 대화 속에서 관계가 한층 단단해지는 것을 느낄 수 있습니다.",
+      money: "내 속도대로 꾸준히 모으는 만큼 재물이 차곡차곡 쌓이는 해입니다. 주변에서 들려오는 솔깃한 이야기에 마음이 흔들릴 때가 있겠네요. 하지만 남의 말에 휩쓸리기보다 나만의 계획을 지키는 것이 올해의 정답입니다. 작은 금액이라도 정해 둔 대로 꾸준히 모으면 연말에 뿌듯한 결과를 확인하게 됩니다. 남과 비교하는 마음을 내려놓을수록 재물운은 더 안정됩니다.",
+      health: "같은 불 기운이 겹쳐 기운이 강해지는 만큼, 쉽게 지치거나 예민해질 수 있는 해입니다. 사소한 일에 마음이 쓰이고 잠을 설치는 날이 생길 수 있겠네요. 따뜻한 차 한 잔과 여유 있는 저녁 시간이 컨디션을 지키는 가장 좋은 방법입니다. 잠들기 전에는 휴대폰을 잠시 내려놓고 마음을 가라앉혀 보세요. 스스로를 다독이는 작은 습관이 한 해의 건강을 든든하게 지켜 줍니다.",
+      work: "꾸준히 쌓아 온 실력이 자연스럽게 드러나는 해입니다. 그동안 묵묵히 해 온 일이 누군가의 눈에 띄고 인정받는 순간이 찾아오겠네요. 특히 창작이나 기획처럼 나만의 색을 담는 일에서 좋은 결과가 나옵니다. 남과 비교하며 조급해할 필요는 없습니다. 나만의 속도로 끝까지 해내는 힘이 올해 당신의 가장 큰 무기입니다. 학업에서도 자신만의 공부 방법을 꾸준히 지키면 성적이 안정적으로 오릅니다." },
+    { love: "믿을 만한 사람의 소개나 배움의 자리에서 좋은 인연을 만나는 해입니다. 우연히 시작된 만남보다 주변 사람이 이어 준 인연이 더 깊어질 가능성이 크겠네요. 처음에는 설렘보다 편안함이 먼저 느껴질 수 있습니다. 그러나 그 편안함이 시간이 지날수록 든든한 믿음으로 바뀝니다. 연인이 있다면 서로의 가족이나 친구와 가까워지는 일이 생길 수 있습니다. 함께하는 사람이 늘어날수록 관계는 더욱 단단해집니다.",
+      money: "주변의 도움으로 재물의 기반이 단단해지는 해입니다. 윗사람이나 경험 많은 사람의 조언이 큰 도움이 되겠네요. 당장 큰 수익을 노리기보다 차근차근 쌓아 가는 계획이 올해와 잘 맞습니다. 저축이나 공부처럼 시간이 걸리는 투자가 나중에 든든한 밑천이 됩니다. 조급한 마음에 무리하게 움직이기보다 큰 산처럼 묵직하게 자리를 지키는 것이 재물을 불리는 길입니다.",
+      health: "몸이 무거워지기 쉬운 해라 규칙적인 식사가 무엇보다 중요합니다. 바쁘다는 이유로 끼니를 거르거나 한꺼번에 많이 먹는 날이 늘어날 수 있겠네요. 정해진 시간에 알맞게 먹는 습관만 지켜도 컨디션이 확연히 달라집니다. 가볍게라도 매일 걷는 습관을 들여 보세요. 몸이 가벼워지면 마음의 여유도 함께 찾아옵니다.",
+      work: "새로운 공부나 자격증에 도전하기 좋은 해입니다. 배우는 만큼 머리에 쏙쏙 들어오고, 배운 것이 곧바로 일과 학업의 성과로 이어지겠네요. 미뤄 두었던 시험이나 교육 과정이 있다면 올해 시작해 보세요. 좋은 선생님이나 선배를 만나 큰 도움을 받을 수도 있습니다. 받은 도움에 감사하는 마음을 잊지 않으면 그 인연이 오래도록 당신을 이끌어 줍니다." },
+    { love: "새로운 모임이나 공부하는 자리에서 생각이 잘 통하는 사람을 만나는 해입니다. 대화가 끊이지 않고, 이야기할수록 더 궁금해지는 사람이 나타나겠네요. 한쪽이 일방적으로 맞춰 주기보다 서로를 존중하는 대등한 관계가 잘 맞습니다. 연인이 있다면 함께 무언가를 배우거나 새로운 경험을 해 보세요. 같은 방향을 바라보는 시간 속에서 관계가 더욱 깊어집니다.",
+      money: "스스로 판단하고 결정하는 힘이 커지는 해입니다. 남이 좋다고 하는 것을 그대로 따르기보다 충분히 알아보고 결정할 때 재물을 지키고 늘릴 수 있겠네요. 새로운 정보와 지식이 돈의 흐름을 읽는 눈을 길러 줍니다. 다만 생각이 너무 많아 결정을 미루다 기회를 놓치지 않도록 주의하세요. 알아볼 만큼 알아봤다면 그다음에는 믿고 움직이는 용기가 필요합니다.",
+      health: "생각이 많아지는 해라 소화가 더디거나 속이 불편한 날이 생길 수 있습니다. 머리를 많이 쓰는 만큼 몸이 먼저 신호를 보내는 것이네요. 끼니를 거르지 말고 천천히 꼭꼭 씹어 먹는 습관을 들여 보세요. 하루에 잠깐이라도 아무 생각 없이 쉬어 가는 시간을 꼭 만들어 주는 것이 좋습니다. 마음이 편해지면 몸도 자연스럽게 가벼워집니다.",
+      work: "평소와 다른 분야의 공부가 새로운 길을 열어 주는 해입니다. 지금 하는 일과 전혀 상관없어 보이는 배움이 뜻밖의 순간에 큰 도움이 되겠네요. 배우고 싶었던 것이 있다면 올해 시작하기에 더없이 좋은 때입니다. 남다른 시각으로 문제를 바라보는 힘이 생겨 주변을 놀라게 할 수도 있습니다. 학업에서도 새로운 과목이나 분야에 흥미를 붙이면 의외의 재능을 발견하게 됩니다." },
+    { love: "책임감 있는 모습이 매력으로 보이는 해입니다. 약속을 지키고 맡은 일을 해내는 모습에 누군가의 마음이 움직이겠네요. 가볍게 시작한 만남도 시간이 지나며 진지한 관계로 발전할 수 있습니다. 연인이 있다면 앞날을 함께 이야기하는 일이 늘어날 것입니다. 다만 너무 무겁게만 다가가면 상대가 부담을 느낄 수 있으니, 때로는 가볍게 웃으며 마음을 표현해 보세요.",
+      money: "노력한 만큼 정당한 보상이 따라오는 해입니다. 성실하게 쌓아 온 시간이 승진이나 좋은 평가로 돌아오고, 그것이 안정적인 수입으로 이어지겠네요. 한 번에 크게 버는 재물보다 꾸준히 들어오는 재물이 더 든든한 해입니다. 정해진 규칙과 절차를 잘 지키는 것이 재물을 지키는 방법이기도 합니다. 계약서나 서류는 한 번 더 꼼꼼히 살펴보면 좋겠습니다.",
+      health: "맡은 일이 많아 긴장이 쌓이기 쉬운 해입니다. 어깨와 목이 뻐근하거나 쉬어도 개운하지 않은 날이 생길 수 있겠네요. 일과 쉼의 경계를 분명히 지키는 것이 무엇보다 중요합니다. 퇴근 뒤나 쉬는 날만큼은 일 생각을 내려놓아 보세요. 특히 계절이 바뀌는 때에는 컨디션이 흔들리기 쉬우니 옷차림과 수면을 잘 챙겨 주는 것이 좋습니다.",
+      work: "그동안의 노력이 드디어 인정받는 해입니다. 불이 쇠를 단련해 좋은 도구를 만들 듯, 쉽지 않았던 시간이 당신을 더 단단하게 만들어 놓았네요. 맡는 역할이 커지거나 중요한 일을 맡게 될 수 있습니다. 부담스럽게 느껴지더라도 자신 있게 책임을 맡아 보세요. 책임감 있게 해낸 일들이 좋은 평판으로 이어지고, 다음 기회의 문을 열어 줍니다." },
+    { love: "평소와 다른 스타일의 사람에게 설렘을 느낄 수 있는 해입니다. 익숙한 틀에서 한 걸음 벗어나 마음을 열면 반짝이는 인연을 만나게 되겠네요. 처음에는 낯설고 어색하게 느껴질 수 있지만, 그 낯섦이 오히려 새로운 매력이 됩니다. 연인이 있다면 늘 가던 곳 대신 새로운 장소에서 데이트를 해 보세요. 작은 변화가 관계에 신선한 바람을 불어넣어 줍니다.",
+      money: "변화 속에서 새로운 수입의 기회가 보이는 해입니다. 일하는 방식이나 환경이 바뀌면서 그동안 보이지 않던 길이 눈에 들어오겠네요. 새로운 방식이나 기술을 배워 두면 재물의 흐름이 한층 좋아집니다. 다만 변화가 많은 만큼 예상치 못한 지출도 생길 수 있으니 여윳돈을 조금 남겨 두는 것이 좋습니다. 준비된 사람에게 기회는 반드시 찾아옵니다.",
+      health: "바쁘게 움직이는 해라 쉽게 피로해질 수 있습니다. 해야 할 일에 쫓기다 보면 몸을 돌볼 틈이 부족해지겠네요. 충분한 잠과 따뜻한 음식으로 몸을 아껴 주는 것이 가장 중요합니다. 차가운 음식보다는 따뜻한 국물 한 그릇이 기운을 북돋아 줍니다. 몸이 보내는 피로의 신호를 무시하지 말고, 쉬어야 할 때는 과감히 쉬어 가세요.",
+      work: "도전이 많은 만큼 한 단계 크게 성장하는 해입니다. 보석이 불 속에서 더 빛나듯, 어려운 과제를 거치며 실력이 단단해지겠네요. 처음에는 버겁게 느껴지는 일도 끝까지 해내면 그 경험이 큰 자산이 됩니다. 새로운 아이디어가 자주 떠오르는 시기이니 메모해 두는 습관을 들여 보세요. 학업에서도 어려운 과목에 도전할수록 자신감이 쑥쑥 자라납니다." },
+    { love: "안정적이고 오래가는 인연이 찾아오는 해입니다. 화려한 설렘보다 곁에 있으면 마음이 편안해지는 사람과 가까워지겠네요. 진심을 꾸준히 보여 주면 관계가 차곡차곡 깊어집니다. 연인이 있다면 함께 미래를 계획하는 이야기가 자연스럽게 나올 수 있습니다. 작은 약속을 하나씩 지켜 나가는 것이 두 사람의 믿음을 가장 단단하게 만들어 줍니다.",
+      money: "재물운이 안정적으로 들어오는 해입니다. 넓은 바다가 따뜻한 햇살을 품듯, 들어오는 재물이 차곡차곡 쌓이겠네요. 계획을 세워 꾸준히 모으면 연말에 확실한 결과를 눈으로 확인할 수 있습니다. 한 번에 큰돈을 노리기보다 매달 정해진 만큼 모으는 방법이 잘 맞습니다. 가계부를 쓰거나 지출을 정리해 보면 새는 돈을 막고 재물운을 더욱 키울 수 있습니다.",
+      health: "몸이 무거워지기 쉬운 해라 몸의 순환을 챙기는 것이 좋습니다. 오래 앉아 있거나 움직임이 적은 날이 이어지면 쉽게 붓고 피곤해질 수 있겠네요. 가벼운 운동과 충분한 물 마시기를 습관으로 만들어 보세요. 한 시간에 한 번쯤 자리에서 일어나 몸을 풀어 주는 것만으로도 큰 차이가 납니다. 꾸준한 작은 습관이 한 해의 건강을 지켜 줍니다.",
+      work: "맡은 자리에서 신뢰를 얻는 해입니다. 화려하게 드러나지 않아도 꾸준하고 성실한 태도를 사람들이 알아보겠네요. 맡은 일을 끝까지 책임지는 모습이 좋은 기회로 돌아옵니다. 올해는 새로운 일을 벌이기보다 지금 하는 일을 탄탄하게 다지는 것이 좋습니다. 학업에서도 계획표를 세우고 꾸준히 실천하면 차곡차곡 쌓인 실력이 결과로 나타납니다." },
+    { love: "활동 반경을 넓힐수록 새로운 인연을 만날 기회가 많아지는 해입니다. 새로운 장소, 새로운 모임에 발걸음을 옮기는 만큼 좋은 사람을 만날 확률도 높아지겠네요. 마음에 드는 사람이 있다면 망설이지 말고 먼저 다가가 보세요. 용기 있는 한마디가 생각지도 못한 인연으로 이어집니다. 연인이 있다면 함께 여행이나 새로운 활동을 계획해 보세요. 둘만의 추억이 쌓이며 관계가 더욱 깊어집니다.",
+      money: "뜻밖의 기회로 재물이 들어올 수 있는 해입니다. 단비가 햇살을 만나 무지개를 만들 듯, 예상하지 못한 곳에서 좋은 소식이 들려오겠네요. 정보에 귀를 열고 빠르게 움직이면 좋은 결과가 있습니다. 다만 들어오는 것이 빠른 만큼 나가는 것도 빠를 수 있으니, 생긴 돈은 일부라도 바로 모아 두는 것이 좋습니다. 기회를 잡는 순발력과 지키는 꼼꼼함을 함께 갖추면 재물운이 오래갑니다.",
+      health: "바쁜 일정이 이어질 수 있어 체력 관리가 무엇보다 중요한 해입니다. 여기저기 다니며 활동하는 날이 많아 지칠 틈도 없이 하루가 지나가겠네요. 틈틈이 쉬어 가며 가벼운 운동으로 몸의 리듬을 지켜 주세요. 이동이 많은 날일수록 물을 자주 마시고 끼니를 챙기는 것이 좋습니다. 체력이 받쳐 줄 때 찾아온 기회도 마음껏 누릴 수 있습니다.",
+      work: "새로운 기회가 눈앞에 나타나는 해입니다. 생각지 못한 제안이나 새로운 자리 이야기가 들려올 수 있겠네요. 망설이기보다 적극적으로 도전할 때 좋은 성과가 납니다. 처음 해 보는 일이라도 두려워하지 말고 부딪혀 보세요. 빠르게 배우고 적응하는 힘이 올해 당신의 가장 큰 장점입니다. 학업에서도 새로운 활동이나 대회에 도전해 보면 좋은 결과를 기대할 수 있습니다." }
+  ];
+
+  var AREA_NAME = { love: "연애운", money: "재물운", health: "건강운", work: "학업·직장운" };
+
+  var DAY = 86400000;
+  function mod(a, n) { return ((a % n) + n) % n; }
+
+  function dayPillar(y, m, d) {
+    var days = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(1900, 0, 1)) / DAY);
+    var idx = mod(days + 10, 60);
+    return { stem: idx % 10, branch: idx % 12 };
+  }
+
+  function yearPillar(y, m, d) {
+    var yy = (m < 2 || (m === 2 && d < 4)) ? y - 1 : y;
+    return { stem: mod(yy - 4, 10), branch: mod(yy - 4, 12) };
+  }
+
+  var lunarFmt = null;
+  try {
+    lunarFmt = new Intl.DateTimeFormat("ko-KR-u-ca-dangi", { timeZone: "UTC", year: "numeric", month: "numeric", day: "numeric" });
+  } catch (e) { lunarFmt = null; }
+
+  function lunarParts(t) {
+    var parts = lunarFmt.formatToParts(new Date(t));
+    var o = {};
+    for (var i = 0; i < parts.length; i++) o[parts[i].type] = parts[i].value;
+    var monthText = o.month || "";
+    return {
+      year: parseInt(o.relatedYear || o.year, 10),
+      month: parseInt(monthText.replace(/\D/g, ""), 10),
+      leap: /윤|bis|leap/i.test(monthText),
+      day: parseInt(o.day, 10)
+    };
+  }
+
+  var lunarOK = false;
+  if (lunarFmt) {
+    try {
+      var chk = lunarParts(Date.UTC(2026, 1, 17));
+      lunarOK = chk.year === 2026 && chk.month === 1 && chk.day === 1 && !chk.leap;
+    } catch (e) { lunarOK = false; }
+  }
+
+  function lunarToSolar(y, m, d, leap) {
+    var start = Date.UTC(y, 0, 1), end = Date.UTC(y + 1, 2, 31);
+    for (var t = start; t <= end; t += DAY) {
+      var p = lunarParts(t);
+      if (p.year === y && p.month === m && p.day === d && p.leap === leap) {
+        var dt = new Date(t);
+        return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate() };
+      }
+    }
+    return null;
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var ySel = $("y"), mSel = $("m"), dSel = $("d");
+  var cur = null;
+
+  function fill(sel, from, to, selected, desc) {
+    sel.innerHTML = "";
+    if (desc) { for (var i = to; i >= from; i--) add(i); } else { for (var j = from; j <= to; j++) add(j); }
+    function add(v) {
+      var o = document.createElement("option");
+      o.value = String(v); o.textContent = String(v);
+      if (v === selected) o.selected = true;
+      sel.appendChild(o);
+    }
+  }
+
+  function isLunar() { return $("cal-lunar").checked; }
+
+  function maxDay() {
+    if (isLunar()) return 30;
+    var y = +ySel.value, m = +mSel.value;
+    return new Date(Date.UTC(y, m, 0)).getUTCDate();
+  }
+
+  function refreshDays() {
+    var keep = +dSel.value || 15;
+    var max = maxDay();
+    fill(dSel, 1, max, Math.min(keep, max), false);
+  }
+
+  fill(ySel, 1930, 2026, 1995, true);
+  fill(mSel, 1, 12, 6, false);
+  fill(dSel, 1, 30, 15, false);
+  refreshDays();
+
+  ySel.addEventListener("change", refreshDays);
+  mSel.addEventListener("change", refreshDays);
+
+  function showError(msg) { var e = $("error"); e.textContent = msg; e.hidden = false; }
+  function hideError() { $("error").hidden = true; }
+
+  var TITLES = ["", "생일 기준 선택 · 1/3", "생년월일 입력 · 2/3", "보고 싶은 운 · 3/3"];
+  function goStep(n) {
+    $("step-cal").hidden = n !== 1;
+    $("step-date").hidden = n !== 2;
+    $("step-area").hidden = n !== 3;
+    $("step-load").hidden = true;
+    $("form-title").textContent = TITLES[n];
+    $("form").hidden = false;
+    $("result").hidden = true;
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+
+  function pick(lunar) {
+    $(lunar ? "cal-lunar" : "cal-solar").checked = true;
+    $("leap").checked = false;
+    $("leap-row").hidden = !lunar;
+    $("picked-label").textContent = lunar ? "음력" : "양력";
+    refreshDays();
+    hideError();
+    goStep(2);
+  }
+
+  function computeBirth() {
+    hideError();
+    var y = +ySel.value, m = +mSel.value, d = +dSel.value;
+    var solar = { y: y, m: m, d: d };
+    var inputText = "양력 " + y + "." + m + "." + d;
+
+    if (isLunar()) {
+      if (!lunarOK) { showError("이 휴대폰에서는 음력 변환을 할 수 없어요. 양력 생일로 입력해 주세요."); return false; }
+      var leap = $("leap").checked;
+      solar = lunarToSolar(y, m, d, leap);
+      if (!solar) {
+        showError("음력 " + y + "년 " + (leap ? "윤" : "") + m + "월 " + d + "일은 달력에 없는 날짜예요. 날짜나 윤달 여부를 다시 확인해 주세요.");
+        return false;
+      }
+      inputText = "음력 " + y + "." + (leap ? "윤" : "") + m + "." + d + " (양력 " + solar.y + "." + solar.m + "." + solar.d + ")";
+    }
+
+    var dp = dayPillar(solar.y, solar.m, solar.d);
+    var yp = yearPillar(solar.y, solar.m, solar.d);
+    cur = { dp: dp, yp: yp, s: STEMS[dp.stem], z: ZODIAC[yp.branch], a: AREA[dp.stem], inputText: inputText };
+    $("picked-date").textContent = inputText.replace(/ \(.*\)$/, "");
+    return true;
+  }
+
+  function showArea(key) {
+    var s = cur.s, z = cur.z;
+    $("r-title").textContent = "2027 정미년 " + AREA_NAME[key];
+    $("r-hanja").textContent = s.h;
+    $("r-name").textContent = s.n + " (" + s.el + "의 기운)";
+    $("r-desc").textContent = s.desc;
+    $("r-area").textContent = AREA_NAME[key];
+    $("r-text").textContent = cur.a[key];
+    $("r-tip-l").textContent = z.a + "띠로 보는 한 줄";
+    $("r-tip").textContent = z[key];
+    $("r-meta").textContent = "";
+    $("r-meta").appendChild(document.createTextNode(cur.inputText));
+    $("r-meta").appendChild(document.createElement("br"));
+    $("r-meta").appendChild(document.createTextNode("일주 " + STEM_KO[cur.dp.stem] + BRANCH_KO[cur.dp.branch] + "일 · 사주 기준 " + z.a + "띠 (입춘 기준)"));
+    $("form").hidden = true;
+    $("result").hidden = false;
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+
+  function safe(fn) {
+    return function (ev) {
+      if (ev && ev.preventDefault) ev.preventDefault();
+      try { fn.call(this, ev); } catch (err) { showError("오류가 났어요: " + err.message + " (이 화면을 캡처해서 보내주세요)"); }
+    };
+  }
+
+  $("pick-solar").addEventListener("click", safe(function () { pick(false); }));
+  $("pick-lunar").addEventListener("click", safe(function () { pick(true); }));
+  $("back").addEventListener("click", safe(function () { hideError(); goStep(1); }));
+  $("back2").addEventListener("click", safe(function () { goStep(2); }));
+  $("form").addEventListener("submit", safe(function () { if (computeBirth()) goStep(3); }));
+  $("go").addEventListener("click", safe(function () { if (computeBirth()) goStep(3); }));
+
+  var busy = false;
+  function startLoading(key) {
+    if (busy) return;
+    busy = true;
+    $("step-area").hidden = true;
+    $("step-load").hidden = false;
+    $("form-title").textContent = "2027 " + AREA_NAME[key] + " 풀이 중";
+    $("load-t").textContent = "사주를 계산하고 있어요";
+    setTimeout(function () { $("load-t").textContent = "2027년 기운을 읽고 있어요"; }, 1000);
+    setTimeout(function () {
+      busy = false;
+      try { showArea(key); } catch (err) { goStep(2); showError("오류가 났어요: " + err.message + " (이 화면을 캡처해서 보내주세요)"); }
+    }, 2000);
+  }
+
+  var areaBtns = document.querySelectorAll(".area-btn");
+  for (var ai = 0; ai < areaBtns.length; ai++) {
+    areaBtns[ai].addEventListener("click", safe(function () { startLoading(this.getAttribute("data-area")); }));
+  }
+
+  $("other").addEventListener("click", safe(function () { goStep(3); }));
+  $("again").addEventListener("click", safe(function () { cur = null; goStep(1); }));
+})();
+</script>
+</body>
+</html>
